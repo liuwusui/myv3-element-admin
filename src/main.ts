@@ -4,6 +4,8 @@ import App from './App.vue'
 
 
 import 'virtual:svg-icons-register';
+import 'uno.css'
+
 
 
 

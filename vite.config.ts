@@ -8,6 +8,8 @@ import IconsResolver from 'unplugin-icons/resolver'
 import { UserConfig, ConfigEnv, loadEnv, defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+// vite.config.ts
+import UnoCSS from 'unocss/vite'
 
 // https://vitejs.dev/config/
 // export default defineConfig({
@@ -116,7 +118,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
         // 指定symbolId格式
         symbolId: 'icon-[dir]-[name]',
-      })
+      }),
+      UnoCSS({ /* options */ }),
     ]
   }
 })
