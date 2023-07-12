@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import variables from '@/styles/variables.module.scss'
+import { useCounterStore } from '@/store/counter'
 
+const store = useCounterStore()
+console.log(store.double, 132123)
 defineProps<{ msg: string }>()
 
 const count = ref(0)
 
-import variables from '@/styles/variables.module.scss'
 console.log(variables.bgColor)
 </script>
 
@@ -16,7 +19,7 @@ console.log(variables.bgColor)
     ><svg-icon icon-class="danger" />SVG 本地图标</el-button
   >
   <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
+    <button type="button" @click="count++">count is {{ store.count }}</button>
     <p>
       Edit
       <code>components/HelloWorld.vue</code> to test HMR
