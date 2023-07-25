@@ -44,9 +44,9 @@ console.log(variables.bgColor)
 .read-the-docs {
   color: #888;
 }
-.box {
-  width: 100px;
-  height: 100px;
-  background-color: $bg-color;
-}
+// .box {
+//   width: 100px;
+//   height: 100px;
+//   background-color: $bg-color;
+// }
 </style>

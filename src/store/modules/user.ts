@@ -1,0 +1,63 @@
+import { loginApi } from '@/api/auth'
+import { LoginData } from '@/api/auth/types'
+import { defineStore } from 'pinia'
+import { useStorage } from '@vueuse/core'
+import { store } from '@/store'
+import { getUserInfo } from '@/api/user'
+import { UserInfo } from '@/api/user/types'
+export const useUserStore = defineStore('user', () => {
+  const username = ref('')
+  const avatar = ref('')
+  const token = useStorage('accessToken', '')
+  const roles = ref<Array<string>>([]) // 用户角色编码集合 → 判断路由权限
+  const perms = ref<Array<string>>([]) // 用户权限编码集合 → 判断按钮权限
+  function login(loginData: LoginData) {
+    return new Promise<void>((resolve, reject) => {
+      loginApi(loginData)
+        .then((response) => {
+          const { tokenType, accessToken } = response.data
+          token.value = tokenType + '' + accessToken
+          resolve()
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  }
+  // 获取信息(用户昵称、头像、角色集合、权限集合)
+  function getInfo() {
+    return new Promise<UserInfo>((resolve, reject) => {
+      getUserInfo()
+        .then(({ data }) => {
+          if (!data) {
+            return reject('Verification failed, please Login again.')
+          }
+          if (!data.roles || data.roles.length <= 0) {
+            reject('getUserInfo: roles must be a non-null array!')
+          }
+          // userId.value = data.userId
+          username.value = data.nickname
+          avatar.value = data.avatar
+          roles.value = data.roles
+          perms.value = data.perms
+          resolve(data)
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  }
+  return {
+    token,
+    username,
+    avatar,
+    roles,
+    perms,
+    login,
+    getInfo
+  }
+})
+// 非setup
+export function useUserStoreHook() {
+  return useUserStore(store)
+}

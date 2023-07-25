@@ -9,14 +9,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/path-browserify": "^1.0.0",
+    "axios": "^1.4.0",
+    "echarts": "^5.4.3",
     "element-plus": "^2.3.7",
+    "icons-vue": "^1.0.9",
+    "nprogress": "^0.2.0",
+    "path-browserify": "^1.0.1",
     "pinia": "^2.1.4",
     "vue": "^3.2.47",
+    "vue-i18n": "^9.3.0-beta.24",
     "vue-router": "^4.0.13"
   },
   "devDependencies": {
     "@iconify-json/ep": "^1.1.11",
     "@types/node": "^20.3.3",
+    "@types/vue-i18n": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "@vitejs/plugin-vue": "^4.1.0",
@@ -27,6 +35,7 @@
     "typescript": "^5.0.2",
     "unocss": "^0.53.5",
     "unplugin-auto-import": "^0.16.6",
+    "unplugin-element-plus": "^0.7.2",
     "unplugin-icons": "^0.16.3",
     "unplugin-vue-components": "^0.25.1",
     "vite": "^4.3.9",
