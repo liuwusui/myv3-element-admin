@@ -1,15 +1,15 @@
-import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { UserForm, UserInfo, UserPageVO, UserQuery } from './types';
+import request from '@/utils/request'
+import { AxiosPromise } from 'axios'
+import { UserForm, UserInfo, UserPageVO, UserQuery } from './types'
 
 /**
  * 登录成功后获取用户信息（昵称、头像、权限集合和角色集合）
  */
-export function getUserInfo(): AxiosPromise<UserInfo> {
+export function getUserInfo() {
   return request({
     url: '/api/v1/users/me',
     method: 'get'
-  });
+  })
 }
 
 /**
@@ -24,7 +24,7 @@ export function getUserPage(
     url: '/api/v1/users/page',
     method: 'get',
     params: queryParams
-  });
+  })
 }
 
 /**
@@ -36,7 +36,7 @@ export function getUserForm(userId: number): AxiosPromise<UserForm> {
   return request({
     url: '/api/v1/users/' + userId + '/form',
     method: 'get'
-  });
+  })
 }
 
 /**
@@ -49,7 +49,7 @@ export function addUser(data: any) {
     url: '/api/v1/users',
     method: 'post',
     data: data
-  });
+  })
 }
 
 /**
@@ -63,7 +63,7 @@ export function updateUser(id: number, data: UserForm) {
     url: '/api/v1/users/' + id,
     method: 'put',
     data: data
-  });
+  })
 }
 
 /**
@@ -77,7 +77,7 @@ export function updateUserStatus(id: number, status: number) {
     url: '/api/v1/users/' + id + '/status',
     method: 'patch',
     params: { status: status }
-  });
+  })
 }
 
 /**
@@ -91,7 +91,7 @@ export function updateUserPassword(id: number, password: string) {
     url: '/api/v1/users/' + id + '/password',
     method: 'patch',
     params: { password: password }
-  });
+  })
 }
 
 /**
@@ -103,7 +103,7 @@ export function deleteUsers(ids: string) {
   return request({
     url: '/api/v1/users/' + ids,
     method: 'delete'
-  });
+  })
 }
 
 /**
@@ -116,7 +116,7 @@ export function downloadTemplateApi() {
     url: '/api/v1/users/template',
     method: 'get',
     responseType: 'arraybuffer'
-  });
+  })
 }
 
 /**
@@ -131,7 +131,7 @@ export function exportUser(queryParams: UserQuery) {
     method: 'get',
     params: queryParams,
     responseType: 'arraybuffer'
-  });
+  })
 }
 
 /**
@@ -140,8 +140,8 @@ export function exportUser(queryParams: UserQuery) {
  * @param file
  */
 export function importUser(deptId: number, file: File) {
-  const formData = new FormData();
-  formData.append('file', file);
+  const formData = new FormData()
+  formData.append('file', file)
   return request({
     url: '/api/v1/users/_import',
     method: 'post',
@@ -150,5 +150,5 @@ export function importUser(deptId: number, file: File) {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
-  });
+  })
 }

@@ -4,6 +4,7 @@
 export interface UserInfo {
   userId: number
   nickname: string
+  username: string
   avatar: string
   roles: string[]
   perms: string[]

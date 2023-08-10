@@ -89,27 +89,30 @@ const loginRules = {
 
 function submitForm() {
   loginFormRef.value.validate((valid: boolean) => {
+    console.log(loginData.value)
     if (valid) {
-      userStore.login(loginData.value).then((res) => {
-        console.log(res)
-        const query: LocationQuery = route.query
-        const redirect = (query.redirect as LocationQueryValue) ?? '/'
-        const otherQueryParams = Object.keys(query).reduce(
-          (acc: any, cur: string) => {
-            if (cur !== 'redirect') {
-              acc[cur] = query[cur]
-            }
-            return acc
-          },
-          {}
-        )
+      userStore
+        .login(loginData.value)
+        .then(() => {
+          const query: LocationQuery = route.query
+          const redirect = (query.redirect as LocationQueryValue) ?? '/'
+          const otherQueryParams = Object.keys(query).reduce(
+            (acc: any, cur: string) => {
+              if (cur !== 'redirect') {
+                acc[cur] = query[cur]
+              }
+              return acc
+            },
+            {}
+          )
+          console.log(redirect, otherQueryParams, 90908998)
 
-        router.push({ path: redirect, query: otherQueryParams })
-      }).catch(()=>{
-        getCaptcha()
-      }).finally(()=>{
-        
-      })
+          router.push({ path: '/dashboard', query: otherQueryParams })
+        })
+        .catch(() => {
+          getCaptcha()
+        })
+        .finally(() => {})
     }
   })
 }
@@ -117,6 +120,7 @@ function getCaptcha() {
   getCaptchaApi().then((res) => {
     console.log(res.data)
     const { verifyCodeBase64, verifyCodeKey } = res.data
+    console.log(verifyCodeBase64, verifyCodeKey)
     loginData.value.verifyCodeKey = verifyCodeKey
     captchaBase64.value = verifyCodeBase64
   })

@@ -1,12 +1,15 @@
-import { loginApi } from '@/api/auth'
+import { loginApi, logoutApi } from '@/api/auth'
 import { LoginData } from '@/api/auth/types'
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 import { store } from '@/store'
 import { getUserInfo } from '@/api/user'
 import { UserInfo } from '@/api/user/types'
+import router from '@/router'
 export const useUserStore = defineStore('user', () => {
+  const userId = ref()
   const username = ref('')
+  const nickname = ref('')
   const avatar = ref('')
   const token = useStorage('accessToken', '')
   const roles = ref<Array<string>>([]) // 用户角色编码集合 → 判断路由权限
@@ -15,11 +18,14 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<void>((resolve, reject) => {
       loginApi(loginData)
         .then((response) => {
+          console.log(response, 123123123)
           const { tokenType, accessToken } = response.data
-          token.value = tokenType + '' + accessToken
+          token.value = tokenType + ' ' + accessToken
+          console.log(token.value)
           resolve()
         })
         .catch((error) => {
+          console.log(error)
           reject(error)
         })
     })
@@ -29,13 +35,15 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<UserInfo>((resolve, reject) => {
       getUserInfo()
         .then(({ data }) => {
+          console.log(data, 123123123)
           if (!data) {
             return reject('Verification failed, please Login again.')
           }
           if (!data.roles || data.roles.length <= 0) {
             reject('getUserInfo: roles must be a non-null array!')
           }
-          // userId.value = data.userId
+          userId.value = data.userId
+          nickname.value = data.nickname
           username.value = data.nickname
           avatar.value = data.avatar
           roles.value = data.roles
@@ -47,6 +55,29 @@ export const useUserStore = defineStore('user', () => {
         })
     })
   }
+  // 注销
+  function logout() {
+    return new Promise<void>((resolve, reject) => {
+      logoutApi()
+        .then(() => {
+          router.replace({ path: '/login' })
+          resetToken()
+          location.reload() // 清空路由
+          resolve()
+        })
+        .catch((error) => {
+          reject(error)
+        })
+    })
+  }
+  // 重置
+  function resetToken() {
+    token.value = ''
+    username.value = ''
+    avatar.value = ''
+    roles.value = []
+    perms.value = []
+  }
   return {
     token,
     username,
@@ -54,7 +85,9 @@ export const useUserStore = defineStore('user', () => {
     roles,
     perms,
     login,
-    getInfo
+    getInfo,
+    logout,
+    resetToken
   }
 })
 // 非setup

@@ -86,7 +86,7 @@ function logout() {
         <template #dropdown>
           <el-dropdown-menu>
             <router-link to="/">
-              <el-dropdown-item>{{ $t("navbar.dashboard") }}</el-dropdown-item>
+              <el-dropdown-item>{{ ("navbar.dashboard") }}</el-dropdown-item>
             </router-link>
             <a
               target="_blank"
@@ -95,16 +95,16 @@ function logout() {
               <el-dropdown-item>Github</el-dropdown-item>
             </a>
             <a target="_blank" href="https://gitee.com/haoxr">
-              <el-dropdown-item>{{ $t("navbar.gitee") }}</el-dropdown-item>
+              <el-dropdown-item>{{ ("navbar.gitee") }}</el-dropdown-item>
             </a>
             <a
               target="_blank"
               href="https://juejin.cn/post/7228990409909108793"
             >
-              <el-dropdown-item>{{ $t("navbar.document") }}</el-dropdown-item>
+              <el-dropdown-item>{{ ("navbar.document") }}</el-dropdown-item>
             </a>
             <el-dropdown-item divided @click="logout">
-              {{ $t("navbar.logout") }}
+              {{ ("navbar.logout") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>

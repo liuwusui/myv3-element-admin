@@ -1,45 +1,45 @@
 <script setup lang="ts">
-import { useSettingsStore } from "@/store/modules/settings";
+import { useSettingsStore } from '@/store/modules/settings'
 
-import IconEpSunny from "~icons/ep/sunny";
-import IconEpMoon from "~icons/ep/moon";
+import IconEpSunny from '~icons/ep/sunny'
+import IconEpMoon from '~icons/ep/moon'
 
 /**
  * 暗黑模式
  */
-const settingsStore = useSettingsStore();
-const isDark = useDark();
-const toggleDark = () => useToggle(isDark);
+const settingsStore = useSettingsStore()
+const isDark = useDark()
+const toggleDark = () => useToggle(isDark)
 
 /**
  * 切换布局
  */
 function changeLayout(layout: string) {
-  settingsStore.changeSetting({ key: "layout", value: layout });
-  window.document.body.setAttribute("layout", settingsStore.layout);
+  settingsStore.changeSetting({ key: 'layout', value: layout })
+  window.document.body.setAttribute('layout', settingsStore.layout)
 }
 
 // 主题颜色
 const themeColors = ref<string[]>([
-  "#409EFF",
-  "#304156",
-  "#11a983",
-  "#13c2c2",
-  "#6959CD",
-  "#f5222d",
-]);
+  '#409EFF',
+  '#304156',
+  '#11a983',
+  '#13c2c2',
+  '#6959CD',
+  '#f5222d'
+])
 
 /**
  * 切换主题颜色
  */
 function changeThemeColor(color: string) {
-  document.documentElement.style.setProperty("--el-color-primary", color);
-  settingsStore.changeSetting({ key: "layout", value: color });
+  document.documentElement.style.setProperty('--el-color-primary', color)
+  settingsStore.changeSetting({ key: 'layout', value: color })
 }
 
 onMounted(() => {
-  window.document.body.setAttribute("layout", settingsStore.layout);
-});
+  window.document.body.setAttribute('layout', settingsStore.layout)
+})
 </script>
 
 <template>
