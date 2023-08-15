@@ -21,6 +21,16 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/login/index.vue'),
     meta: { hidden: true }
   },
+  // {
+  //   path: '/system',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'user',
+  //       component: () => import('@/views/user/index.vue')
+  //     }
+  //   ]
+  // },
 
   {
     path: '/',

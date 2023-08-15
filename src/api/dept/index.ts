@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function listRoutes() {
+export function deptOptions() {
   return request({
-    url: '/api/v1/menus/routes',
+    url: '/api/v1/dept/options',
     method: 'get'
   })
 }

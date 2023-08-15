@@ -2,6 +2,48 @@ import request from '@/utils/request'
 import { AxiosPromise } from 'axios'
 import { UserForm, UserInfo, UserPageVO, UserQuery } from './types'
 
+// 获取部门列表
+export function getdept() {
+  return request({
+    url: '/api/v1/dept',
+    method: 'get'
+  })
+}
+// 用户表格数据
+export function getUsers(data?: UserQuery) {
+  return request({
+    url: '/api/v1/users/page',
+    method: 'get',
+    params: data
+  })
+}
+
+// 新增用户
+
+export function addUser(data: any) {
+  return request({
+    url: '/api/v1/users',
+    method: 'post',
+    data: data
+  })
+}
+
+// 根据id获取用户数据
+export function userById(userId: number) {
+  return request({
+    url: `/api/v1/users/${userId}/form`,
+    method: 'get'
+  })
+}
+
+// 删除用户
+export function deleteUser(ids: any) {
+  return request({
+    url: `/api/v1/users/${ids}`,
+    method: 'delete'
+  })
+}
+
 /**
  * 登录成功后获取用户信息（昵称、头像、权限集合和角色集合）
  */
@@ -36,19 +78,6 @@ export function getUserForm(userId: number): AxiosPromise<UserForm> {
   return request({
     url: '/api/v1/users/' + userId + '/form',
     method: 'get'
-  })
-}
-
-/**
- * 添加用户
- *
- * @param data
- */
-export function addUser(data: any) {
-  return request({
-    url: '/api/v1/users',
-    method: 'post',
-    data: data
   })
 }
 

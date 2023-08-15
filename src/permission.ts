@@ -22,6 +22,7 @@ router.beforeEach(async (to, from, next) => {
       // 有token，不去登录页，判断权限
       const userStore = useUserStoreHook()
       const hasRoles = userStore.roles && userStore.roles.length > 0
+      console.log(userStore.roles, 'userStore.roles')
       console.log(hasRoles)
       if (hasRoles) {
         // 未匹配到任何路由，跳转404
@@ -31,20 +32,23 @@ router.beforeEach(async (to, from, next) => {
           next()
         }
       } else {
-        // try {
+        console.log(123123123, hasRoles)
+        try {
         const { roles } = await userStore.getInfo()
         console.log(roles, 222233331231)
         const accessRoutes = await permissionStore.generateRoutes(roles)
+        console.log(accessRoutes)
         accessRoutes.forEach((route) => {
           router.addRoute(route)
         })
+        console.log(router)
         next({ ...to, replace: true })
-        // } catch (error) {
-        //   // 移除 token 并跳转登录页
-        //   await userStore.resetToken();
-        //   next(`/login?redirect=${to.path}`);
-        //   NProgress.done();
-        // }
+        } catch (error) {
+          // 移除 token 并跳转登录页
+          await userStore.resetToken();
+          next(`/login?redirect=${to.path}`);
+          // NProgress.done();
+        }
       }
     }
   } else {

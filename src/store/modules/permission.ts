@@ -15,17 +15,17 @@ const Layout = () => import('@/layout/index.vue')
  * @returns
  */
 const hasPermission = (roles: string[], route: RouteRecordRaw) => {
-  // if (route.meta && route.meta.roles) {
-  //   // 角色【超级管理员】拥有所有权限，忽略校验
-  //   if (roles.includes("ROOT")) {
-  //     return true;
-  //   }
-  //   return roles.some((role) => {
-  //     if (route.meta?.roles !== undefined) {
-  //       return (route.meta.roles as string[]).includes(role);
-  //     }
-  //   });
-  // }
+  if (route.meta && route.meta.roles) {
+    // 角色【超级管理员】拥有所有权限，忽略校验
+    if (roles.includes('ROOT')) {
+      return true
+    }
+    return roles.some((role) => {
+      if (route.meta?.roles !== undefined) {
+        return (route.meta.roles as string[]).includes(role)
+      }
+    })
+  }
   return true
 }
 
@@ -46,7 +46,6 @@ const filterAsyncRoutes = (routes: RouteRecordRaw[], roles: string[]) => {
     if (hasPermission(roles, tmpRoute)) {
       if (tmpRoute.component?.toString() == 'Layout') {
         tmpRoute.component = Layout
-        
       } else {
         const component = modules[`../../views/${tmpRoute.component}.vue`]
         if (component) {
@@ -88,7 +87,9 @@ export const usePermissionStore = defineStore('permission', () => {
       listRoutes()
         .then(({ data: asyncRoutes }) => {
           // 根据角色获取有访问权限的路由
+          console.log(asyncRoutes)
           const accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+          console.log(accessedRoutes)
           setRoutes(accessedRoutes)
           resolve(accessedRoutes)
         })
@@ -97,7 +98,11 @@ export const usePermissionStore = defineStore('permission', () => {
         })
     })
   }
-  return { routes, setRoutes, generateRoutes }
+  return {
+    routes,
+    setRoutes,
+    generateRoutes
+  }
 })
 
 // 非setup
