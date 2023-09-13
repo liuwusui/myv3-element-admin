@@ -4,7 +4,9 @@ import {
   getUsers,
   addUser,
   userById,
-  deleteUser
+  deleteUser,
+  downTemp,
+  downloadTemplateApi
 } from '@/api/user/index'
 import { listRoleOptions } from '@/api/role/index'
 import { deptOptions } from '@/api/dept/index'
@@ -20,6 +22,7 @@ import {
 import { onMounted } from 'vue'
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { prependOnceListener } from 'process'
 
 const handleClick = () => {
   console.log('click')
@@ -40,8 +43,9 @@ const filterNode = (value: string, data: any) => {
   return data.name.includes(value)
 }
 
-function handleNodeClick(data: { [key: string]: any }) {
-  queryParams.deptId = data.value
+function handleNodeClick(data) {
+  console.log(data.id)
+  queryParams.deptId = data.id
   onSearch()
 }
 
@@ -63,6 +67,7 @@ function resetTable() {
 }
 function onSearch() {
   getUsers(queryParams).then((res) => {
+    console.log(queryParams)
     console.log(res)
     tableData.value = res.data.list
     total.value = res.data.total
@@ -105,7 +110,55 @@ async function delUser(id) {
     console.log(123123131232222222)
   })
 }
+// 下载模板
+function download() {
+  downloadTemplateApi()
+    .then((response) => {
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
+      })
+      const a = document.createElement('a')
+      const href = window.URL.createObjectURL(blob) // 下载链接
+      a.href = href
+      a.download = decodeURI(
+        response.headers['content-disposition'].split(';')[1].split('=')[1]
+      ) // 获取后台设置的文件名称
+      document.body.appendChild(a)
+      a.click() // 点击下载
+      document.body.removeChild(a) // 下载完成移除元素
+      window.URL.revokeObjectURL(href) // 释放掉blob对象
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
 
+function downloadTemplate() {
+  downloadTemplateApi()
+    .then((res: any) => {
+      let blob = new Blob([res.data], {
+        type: 'application/vnd.ms-excel'
+      })
+      // 3.创建一个临时的url指向blob对象
+      let objectUrl = window.URL.createObjectURL(blob)
+      // 4.创建url之后可以模拟对此文件对象的一系列操作，例如：预览、下载
+      let a = document.createElement('a')
+      a.setAttribute('href', objectUrl)
+      a.setAttribute('download', '用户模板表.xlsx')
+      a.click()
+      // 5.释放这个临时的对象url
+      window.URL.revokeObjectURL(url)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
+function importData() {
+  importUser().then((res) => {
+    console.log(res)
+  })
+}
 // 新增部门
 // function openDialog() {}
 
@@ -244,11 +297,11 @@ onMounted(() => {
                     导入
                     <template #dropdown>
                       <el-dropdown-menu>
-                        <el-dropdown-item
+                        <el-dropdown-item @click="downloadTemplate"
                           ><el-icon><Download /></el-icon
                           >下载模板</el-dropdown-item
                         >
-                        <el-dropdown-item
+                        <el-dropdown-item @click="importData"
                           ><el-icon><Top /></el-icon>导入数据</el-dropdown-item
                         >
                       </el-dropdown-menu>

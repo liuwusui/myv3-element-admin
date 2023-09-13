@@ -43,6 +43,30 @@ export function deleteUser(ids: any) {
     method: 'delete'
   })
 }
+// 下载模板
+export function downTemp() {
+  return request({
+    url: '/api/v1/users/template',
+    method: 'get'
+  })
+}
+
+// 导入
+export function importUser(deptId: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request({
+    url: '/api/v1/users/_import',
+    method: 'post',
+    params: {
+      deptId: deptId
+    },
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
 
 /**
  * 登录成功后获取用户信息（昵称、头像、权限集合和角色集合）
@@ -168,16 +192,16 @@ export function exportUser(queryParams: UserQuery) {
  *
  * @param file
  */
-export function importUser(deptId: number, file: File) {
-  const formData = new FormData()
-  formData.append('file', file)
-  return request({
-    url: '/api/v1/users/_import',
-    method: 'post',
-    params: { deptId: deptId },
-    data: formData,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
-}
+// export function importUser(deptId: number, file: File) {
+//   const formData = new FormData()
+//   formData.append('file', file)
+//   return request({
+//     url: '/api/v1/users/_import',
+//     method: 'post',
+//     params: { deptId: deptId },
+//     data: formData,
+//     headers: {
+//       'Content-Type': 'multipart/form-data'
+//     }
+//   })
+// }
