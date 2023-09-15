@@ -13,6 +13,7 @@ const whiteList = ['/login']
 
 router.beforeEach(async (to, from, next) => {
   const hasToken = localStorage.getItem('accessToken')
+  console.log(hasToken, 'hasToken')
   if (hasToken) {
     // 有token，去登录页 跳转首页
     if (to.path === '/login') {
@@ -34,19 +35,17 @@ router.beforeEach(async (to, from, next) => {
       } else {
         console.log(123123123, hasRoles)
         try {
-        const { roles } = await userStore.getInfo()
-        console.log(roles, 222233331231)
-        const accessRoutes = await permissionStore.generateRoutes(roles)
-        console.log(accessRoutes)
-        accessRoutes.forEach((route) => {
-          router.addRoute(route)
-        })
-        console.log(router)
-        next({ ...to, replace: true })
+          const { roles } = await userStore.getInfo()
+          const accessRoutes = await permissionStore.generateRoutes([roles])
+          accessRoutes.forEach((route) => {
+            router.addRoute(route)
+          })
+          next({ ...to, replace: true })
         } catch (error) {
           // 移除 token 并跳转登录页
-          await userStore.resetToken();
-          next(`/login?redirect=${to.path}`);
+          console.log(error)
+          // await userStore.resetToken()
+          next(`/login?redirect=${to.path}`)
           // NProgress.done();
         }
       }

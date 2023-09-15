@@ -14,8 +14,8 @@ export interface LoginData {
    * 密码
    */
   password: string
-  verifyCodeKey?: string
-  verifyCode?: string
+  // verifyCodeKey?: string
+  // verifyCode?: string
 }
 
 /**
@@ -27,6 +27,7 @@ export interface LoginResult {
    * 访问token
    */
   accessToken?: string
+  Token?: string
   /**
    * 过期时间(单位：毫秒)
    */

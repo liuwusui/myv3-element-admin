@@ -18,10 +18,10 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<void>((resolve, reject) => {
       loginApi(loginData)
         .then((response) => {
-          console.log(response, 123123123)
-          const { tokenType, accessToken } = response.data
-          token.value = tokenType + ' ' + accessToken
-          console.log(token.value)
+          const { Token } = response.data
+          token.value = Token
+          // const { tokenType, accessToken } = response.data
+          // token.value = tokenType + ' ' + accessToken
           resolve()
         })
         .catch((error) => {
@@ -55,6 +55,7 @@ export const useUserStore = defineStore('user', () => {
         })
     })
   }
+
   // 注销
   function logout() {
     return new Promise<void>((resolve, reject) => {

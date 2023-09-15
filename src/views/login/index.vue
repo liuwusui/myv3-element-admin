@@ -23,17 +23,20 @@
           placeholder="请输入密码"
         />
       </el-form-item>
-      <el-form-item prop="verifyCode">
+      <!-- <el-form-item prop="verifyCode">
         <span class="p-2 text-white formicon">
           <svg-icon icon-class="verify_code" /> </span
         ><el-input v-model="loginData.verifyCode" placeholder="请输入验证码" />
         <div class="captcha">
           <img :src="captchaBase64" @click="getCaptcha" />
         </div>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item>
-        <el-button style="width: 100%" type="primary" @click="submitForm"
+        <el-button style="width: 48%" type="primary" @click="submitForm"
           >登录</el-button
+        >
+        <el-button style="width: 48%" type="primary" @click="submitForm2"
+          >注册</el-button
         >
       </el-form-item>
       <el-form-item>
@@ -53,13 +56,14 @@ import { LocationQuery, LocationQueryValue, useRoute } from 'vue-router'
 import { getCaptchaApi } from '@/api/auth'
 import { LoginData } from '@/api/auth/types'
 import { useUserStore } from '@/store/modules/user'
+import { register } from '@/api/login'
 const userStore = useUserStore()
 const route = useRoute()
 const loginData = ref<LoginData>({
   username: 'admin',
-  password: '123456',
-  verifyCode: '',
-  verifyCodeKey: ''
+  password: '123456'
+  // verifyCode: '',
+  // verifyCodeKey: ''
 })
 /**
  * 验证码图片Base64字符串
@@ -110,9 +114,41 @@ function submitForm() {
           router.push({ path: '/dashboard', query: otherQueryParams })
         })
         .catch(() => {
-          getCaptcha()
+          // getCaptcha()
         })
         .finally(() => {})
+    }
+  })
+}
+// 注册按钮
+function submitForm2() {
+  loginFormRef.value.validate((valid: boolean) => {
+    console.log(loginData.value)
+    if (valid) {
+      register(loginData.value).then((res) => {
+        console.log(res)
+      })
+      // userStore
+      //   .login(loginData.value)
+      //   .then(() => {
+      //     const query: LocationQuery = route.query
+      //     const redirect = (query.redirect as LocationQueryValue) ?? '/'
+      //     const otherQueryParams = Object.keys(query).reduce(
+      //       (acc: any, cur: string) => {
+      //         if (cur !== 'redirect') {
+      //           acc[cur] = query[cur]
+      //         }
+      //         return acc
+      //       },
+      //       {}
+      //     )
+      //     console.log(redirect, otherQueryParams, 90908998)
+      //     router.push({ path: '/dashboard', query: otherQueryParams })
+      //   })
+      //   .catch(() => {
+      //     getCaptcha()
+      //   })
+      //   .finally(() => {})
     }
   })
 }
@@ -127,7 +163,7 @@ function getCaptcha() {
 }
 
 onMounted(() => {
-  getCaptcha()
+  // getCaptcha()
 })
 </script>
 

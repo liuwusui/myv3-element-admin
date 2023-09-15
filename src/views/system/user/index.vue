@@ -6,6 +6,7 @@ import {
   userById,
   deleteUser,
   downTemp,
+  getUserList,
   downloadTemplateApi
 } from '@/api/user/index'
 import { listRoleOptions } from '@/api/role/index'
@@ -66,8 +67,7 @@ function resetTable() {
   onSearch()
 }
 function onSearch() {
-  getUsers(queryParams).then((res) => {
-    console.log(queryParams)
+  getUserList().then((res) => {
     console.log(res)
     tableData.value = res.data.list
     total.value = res.data.total

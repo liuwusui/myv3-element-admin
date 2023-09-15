@@ -17,6 +17,13 @@ export function getUsers(data?: UserQuery) {
     params: data
   })
 }
+// 用户表格数据
+export function getUserList() {
+  return request({
+    url: '/api/getUserList',
+    method: 'get'
+  })
+}
 
 // 新增用户
 
@@ -73,10 +80,16 @@ export function importUser(deptId: number, file: File) {
  */
 export function getUserInfo() {
   return request({
-    url: '/api/v1/users/me',
+    url: '/user/me',
     method: 'get'
   })
 }
+// export function getUserInfo() {
+//   return request({
+//     url: '/api/v1/users/me',
+//     method: 'get'
+//   })
+// }
 
 /**
  * 获取用户分页列表
