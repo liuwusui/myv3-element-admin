@@ -15,6 +15,7 @@ const Layout = () => import('@/layout/index.vue')
  * @returns
  */
 const hasPermission = (roles: string[], route: RouteRecordRaw) => {
+  console.log(roles, route, 1989189)
   if (route.meta && route.meta.roles) {
     // 角色【超级管理员】拥有所有权限，忽略校验
     if (roles.includes('ROOT')) {
@@ -40,15 +41,17 @@ const filterAsyncRoutes = (routes: RouteRecordRaw[], roles: string[]) => {
   const asyncRoutes: RouteRecordRaw[] = []
 
   routes.forEach((route) => {
-    console.log(route, 909090)
     const tmpRoute = { ...route } // ES6扩展运算符复制新对象
-
+    console.log(tmpRoute)
     // 判断用户(角色)是否有该路由的访问权限
     if (hasPermission(roles, tmpRoute)) {
+      console.log(roles, tmpRoute)
+      console.log(tmpRoute.component)
       if (tmpRoute.component?.toString() == 'Layout') {
         tmpRoute.component = Layout
       } else {
         const component = modules[`../../views/${tmpRoute.component}.vue`]
+        console.log(tmpRoute.component)
         if (component) {
           tmpRoute.component = component
         } else {

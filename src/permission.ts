@@ -44,7 +44,7 @@ router.beforeEach(async (to, from, next) => {
         } catch (error) {
           // 移除 token 并跳转登录页
           console.log(error)
-          // await userStore.resetToken()
+          await userStore.resetToken()
           next(`/login?redirect=${to.path}`)
           // NProgress.done();
         }

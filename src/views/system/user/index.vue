@@ -9,6 +9,7 @@ import {
   getUserList,
   downloadTemplateApi
 } from '@/api/user/index'
+import Popconfirm from 'element-plus'
 import { listRoleOptions } from '@/api/role/index'
 import { deptOptions } from '@/api/dept/index'
 import { OptionType, formInline, UserQuery, UserForm } from '@/api/user/types'
@@ -37,7 +38,8 @@ const treedata = ref<OptionType[]>()
 const ruleFormRef = ref(ElForm)
 const defaultProps = {
   children: 'children',
-  label: 'name'
+  label: 'name',
+  value: 'id'
 }
 const filterNode = (value: string, data: any) => {
   if (!value) return true
@@ -54,6 +56,10 @@ const queryParams: UserQuery = reactive({
   pageNum: 1,
   pageSize: 10
 })
+const pageInfo = reactive({
+  pagenum: 1,
+  pagesize: 10
+})
 
 const total = ref()
 const rolesArr = ref()
@@ -67,7 +73,7 @@ function resetTable() {
   onSearch()
 }
 function onSearch() {
-  getUserList().then((res) => {
+  getUserList(pageInfo).then((res) => {
     console.log(res)
     tableData.value = res.data.list
     total.value = res.data.total
@@ -96,6 +102,7 @@ function getDeptlist() {
 function getDeptOptions() {
   deptOptions().then((res) => {
     deptArr.value = res.data
+    console.log(deptArr, 90909)
   })
 }
 // 获取角色下拉列表
@@ -105,9 +112,13 @@ function getRoleOptions() {
   })
 }
 
-async function delUser(id) {
-  deleteUser(id).then(() => {
-    console.log(123123131232222222)
+function delUser(id) {
+  console.log(id)
+  deleteUser(id).then((res) => {
+    if ((res.code = '00000')) {
+      ElMessage.success(res.message)
+    }
+    onSearch()
   })
 }
 // 下载模板
@@ -191,9 +202,16 @@ const centerDialogVisible = ref(false)
 //   })
 // }
 function submitForm() {
+  console.log(JSON.parse(JSON.stringify(formData)), 181881818)
+
   userFormRef.value.validate((valid: any) => {
     if (valid) {
-      addUser(formData).then(() => {
+      addUser(JSON.parse(JSON.stringify(formData))).then((res) => {
+        console.log(res)
+        if ((res.code = '00000')) {
+          ElMessage.success(res.message)
+          centerDialogVisible.value = false
+        }
         onSearch()
       })
     } else {
@@ -201,6 +219,7 @@ function submitForm() {
     }
   })
 }
+
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   centerDialogVisible.value = false
@@ -216,6 +235,13 @@ const options = Array.from({ length: 10000 }).map((_, idx) => ({
 watch(filterText, (val) => {
   treeRef.value!.filter(val)
 })
+
+let arr = [
+  { id: 1, parent_id: 0, name: '有来技术' },
+  { id: 2, parent_id: 1, name: '研发部门' },
+  { id: 3, parent_id: 1, name: '测试部门' },
+  { id: 4, parent_id: 2, name: '2测试部门' }
+]
 
 onMounted(() => {
   onSearch()
@@ -357,9 +383,27 @@ onMounted(() => {
                     link
                     type="primary"
                     size="small"
+                    slot="reference"
                     @click="delUser(scope.row.id)"
                     >删除</el-button
                   >
+                  <!-- <el-popconfirm
+                    title="确认删除用户?"
+                    confirm-button-text="确认"
+                    cancel-button-text="取消"
+                    @onConfirm="delUser(scope.row.id)"
+                  >
+                    <template #reference>
+                      <el-button
+                        link
+                        type="primary"
+                        size="small"
+                        slot="reference"
+                        @click="delUser(scope.row.id)"
+                        >删除</el-button
+                      >
+                    </template>
+                  </el-popconfirm> -->
                 </template>
               </el-table-column>
             </el-table>
@@ -403,6 +447,7 @@ onMounted(() => {
                 v-model="formData.deptId"
                 placeholder="请输入所属部门"
                 :data="deptArr"
+                :props="defaultProps"
                 check-strictly
                 :render-after-expand="false"
               />
@@ -410,8 +455,8 @@ onMounted(() => {
 
             <el-form-item label="性别" prop="gender">
               <el-select v-model="formData.gender" placeholder="请输入性别">
-                <el-option label="男" value="0" />
-                <el-option label="女" value="1" />
+                <el-option label="男" value="1" />
+                <el-option label="女" value="2" />
               </el-select>
             </el-form-item>
             <el-form-item label="角色" prop="roleIds">

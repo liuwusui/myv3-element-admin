@@ -18,10 +18,14 @@ export function getUsers(data?: UserQuery) {
   })
 }
 // 用户表格数据
-export function getUserList() {
+export function getUserList({ pagenum, pagesize }) {
   return request({
     url: '/api/getUserList',
-    method: 'get'
+    method: 'get',
+    params: {
+      pagenum: pagenum,
+      pagesize: pagesize
+    }
   })
 }
 
@@ -46,7 +50,7 @@ export function userById(userId: number) {
 // 删除用户
 export function deleteUser(ids: any) {
   return request({
-    url: `/api/v1/users/${ids}`,
+    url: `/api/v1/del/users?ids=${ids}`,
     method: 'delete'
   })
 }

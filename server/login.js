@@ -1,6 +1,6 @@
 const express = require('express') //引入express模块
 const app = express() //创建一个express实例
-
+const moment = require('moment')
 // 导入 bcryptjs 加密包
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -8,22 +8,28 @@ const jwt = require('jsonwebtoken')
 const bodyParser = require('body-parser')
 // 导入全局配置文件（里面有token的密钥）
 const config = require('./config')
+// app.use(
+//   bodyParser.urlencoded({
+//     extended: true
+//   })
+//   //封装错误处理函数
+//   // app.use()
+//   // (req, res, next) => {
+//   //   res.cc = function (err, code = 1, data = {}) {
+//   //     res.send({
+//   //       code,
+//   //       data,
+//   //       msg: err instanceof Error ? err.message : err
+//   //     })
+//   //   }
+//   //   next()
+//   // }
+// )
+app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
     extended: false
   })
-  //封装错误处理函数
-  // app.use()
-  // (req, res, next) => {
-  //   res.cc = function (err, code = 1, data = {}) {
-  //     res.send({
-  //       code,
-  //       data,
-  //       msg: err instanceof Error ? err.message : err
-  //     })
-  //   }
-  //   next()
-  // }
 )
 // 这个中间件会在每次验证失败时被调用
 function isRevoked(err, payload) {
@@ -40,7 +46,8 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'LYMLZLHK', // 改成你自己的密码
-  database: 'mynode' // 改成你的数据库名称
+  database: 'mynode', // 改成你的数据库名称
+  multipleStatements: true //执行多条？
 })
 
 connection.connect()
@@ -68,11 +75,11 @@ app.get('/user/register', function (req, res) {
   const sql = `select count(*) from  ev_users where username = "${username}"`
   connection.query(sql, function (err, result) {
     if (err) {
-      console.log('[SELECT ERROR] - ', err.message)
+      // console.log('[SELECT ERROR] - ', err.message)
       return
     }
     //此处建议先console.log(result)
-    console.log(result, 100000)
+    // console.log(result, 100000)
     if (result[0]['count(*)']) {
       let result = {
         code: 0,
@@ -83,7 +90,7 @@ app.get('/user/register', function (req, res) {
       const sql = `insert  INTO  ev_users(username,password,nickname,phone)  values ('${username}','${password}','${nickname}','${phone}')`
       connection.query(sql, function (err, result) {
         if (err) {
-          console.log('[SELECT ERROR] - ', err.message)
+          // console.log('[SELECT ERROR] - ', err.message)
           return
         }
         if (result.affectedRows) {
@@ -171,7 +178,7 @@ app.post('/user/login', function (req, res) {
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body
-  console.log(username)
+  // console.log(username)
 
   const sql =
     'SELECT id, username, nickname, phone, user_pic, userId, avatar, roles, perms, email FROM ev_users WHERE username = ? AND password = ?'
@@ -179,17 +186,21 @@ app.post('/login', (req, res) => {
   connection.query(sql, [username, password], (error, results, fields) => {
     if (error) {
       console.error(error)
-      res.status(500).json({ error: 'Internal Server Error' })
+      res.status(500).json({
+        error: 'Internal Server Error'
+      })
       return
     }
 
     if (results.length === 0) {
-      res.status(401).json({ error: 'Invalid username or password' })
+      res.status(401).json({
+        error: 'Invalid username or password'
+      })
       return
     }
 
     const user = results[0]
-    console.log(user)
+    // console.log(user)
     res.json(user)
   })
 })
@@ -201,10 +212,14 @@ app.get('/user/me', (req, res) => {
   // const sqlStr =
   //   'select id, username, nickname, phone, user_pic, userId, avatar, roles, perms, email from ev_users where username=?'
   const sqlStr = `select * from ev_users where username ='admin'`
-  console.log(req, 909090)
+  // console.log(req, 909090)
   connection.query(sqlStr, req.user, (error, results) => {
-    console.log(results, 123123)
-    if (error) return res.json({ code: 10001, data: error })
+    // console.log(results, 123123)
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
     // res.json({ code: '00000', data: results[0] })
     res.send({
       code: '00000',
@@ -229,6 +244,182 @@ app.get('/user/me', (req, res) => {
 //     })
 //   })
 // })
+
+app.get('/api/getUserList', (req, res) => {
+  const sqlStr =
+    'select sys_user.id,sys_user.username,sys_user.nickname,sys_user.mobile,sys_user.avatar,sys_user.email,sys_user.`status`,sys_user.create_time as createTime,sys_dict.`name` as genderLabel,sys_dept.`name` as deptName from sys_user, sys_dict,sys_dept where sys_user.gender=sys_dict.`value` and sys_user.dept_id=sys_dept.id'
+
+  connection.query(sqlStr, (error, results) => {
+    //pagesize一页展示多条数据  pagesize前端传来的可选参数，如果没传给个默认值5。传来的是字符串需要parseInt()函数转化
+    // const pagesize = parseInt(req.query.pagesize) || 5
+    //pagenum当前第几页  pagenum前端传来的可选参数，如果没传给个默认值1。传来的是字符串需要parseInt()函数转化
+    // const pagenum = Number(req.query.pagenum) //当前页，前端传的页码
+    // let totalPage = Math.ceil(results.length / pagesize) //返一个总页码
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    res.json({
+      code: '00000',
+      data: {
+        list: results,
+        total: results.length
+      }
+    })
+  })
+})
+app.get('/api/v1/roles/options', (req, res) => {
+  const sqlStr =
+    'SELECT sys_role.id as value,sys_role.`name` AS label FROM sys_role'
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    res.json({
+      code: '00000',
+      data: results,
+      message: '获取用户下拉列表成功！'
+    })
+  })
+})
+app.get('/api/v1/dept', (req, res) => {
+  const sqlStr = 'SELECT * FROM sys_dept'
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    const treeData = buildTree(results)
+    res.json({
+      code: '00000',
+      data: treeData,
+      message: '获取用户下拉列表成功！'
+    })
+  })
+})
+app.get('/api/v1/dept/options', (req, res) => {
+  const sqlStr =
+    'SELECT sys_dept.id,sys_dept.parent_id as parentId,sys_dept.`name`,sys_dept.sort,sys_dept.`status`  FROM `sys_dept`'
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    const aaa = toTree(results, 0)
+    res.json({
+      code: '00000',
+      data: aaa,
+      message: '获取用户下拉列表成功！'
+    })
+  })
+})
+app.post('/api/v1/users', (req, res) => {
+  console.log(123123)
+  const username = req.body.username
+  const nickname = req.body.nickname
+  const deptId = req.body.deptId
+  const gender = req.body.gender || 0
+  const status = req.body.status
+  const mobile = req.body.mobile || ''
+  const email = req.body.email || ''
+
+  const sqlStr = `insert INTO sys_user(username,nickname,gender,mobile,status,email,dept_id,password,create_time)  values ('${username}','${nickname}','${gender}','${mobile}','${status}','${email}','${deptId}','123456','${moment().format(
+    'YYYY-MM-DD HH:mm:ss'
+  )}')`
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    res.json({
+      code: '00000',
+      data: results,
+      message: '新增用户成功！'
+    })
+  })
+})
+app.delete('/api/v1/del/users', (req, res) => {
+  console.log(req.query.ids, 66666)
+  const sqlStr = `DELETE FROM sys_user where sys_user.id=${req.query.ids}`
+  /*   SET @auto_id = 0;
+UPDATE sys_user SET id = (@auto_id := @auto_id + 1);
+ALTER TABLE sys_user AUTO_INCREMENT = 0; */
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    res.json({
+      code: '00000',
+      data: results,
+      message: '删除用户成功！'
+    })
+  })
+})
+
+// 编辑 用户信息回显
+app.get(`/api/v1/users/:id/form`, (req, res) => {
+  const userId = req.params.id // 获取请求URL中的用户ID
+  const sqlStr = `select *  FROM sys_user where sys_user.id=${userId}`
+  connection.query(sqlStr, (error, results) => {
+    if (error)
+      return res.json({
+        code: 10001,
+        data: error
+      })
+    delete results[0].password
+    delete results[0].deleted
+    delete results[0].update_time
+    res.json({
+      code: '00000',
+      data: results[0],
+      message: '获取用户信息成功！'
+    })
+  })
+})
+
+function buildTree(data) {
+  const tree = []
+  const lookup = {}
+
+  data.forEach((item) => {
+    item.children = []
+
+    lookup[item.id] = item
+  })
+
+  data.forEach((item) => {
+    if (item.parent_id === 0) {
+      tree.push(item)
+    } else {
+      // debugger
+      lookup[item.parent_id].children.push(item)
+    }
+  })
+
+  return tree
+}
+
+function toTree(data, node) {
+  let arr = []
+  data.forEach((item) => {
+    if (item.parentId == node) {
+      let children = toTree(data, item.id)
+      if (children.length > 0) {
+        item.children = children
+      }
+      arr.push(item)
+    }
+  })
+  return arr
+}
 
 var server = app.listen(8888, function () {
   var host = server.address().address
