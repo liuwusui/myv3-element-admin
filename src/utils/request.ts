@@ -13,7 +13,7 @@ const service = axios.create({
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const userStore = useUserStoreHook()
-    console.log(userStore.token)
+    // console.log(userStore.token)
     if (userStore.token) {
       config.headers.Authorization = userStore.token
     }
@@ -28,9 +28,9 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log(response.data)
+    // console.log(response.data)
     const { code, msg } = response.data
-    console.log(code, msg)
+    // console.log(code, msg)
     // 登录成功
     if (code === '00000') {
       return response.data

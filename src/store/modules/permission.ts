@@ -15,15 +15,16 @@ const Layout = () => import('@/layout/index.vue')
  * @returns
  */
 const hasPermission = (roles: string[], route: RouteRecordRaw) => {
-  console.log(roles, route, 1989189)
+  // console.log(roles, route, 1989189)
   if (route.meta && route.meta.roles) {
     // 角色【超级管理员】拥有所有权限，忽略校验
     if (roles.includes('ROOT')) {
       return true
     }
     return roles.some((role) => {
+      // console.log(route.meta?.roles as string[], role, 999999)
       if (route.meta?.roles !== undefined) {
-        return (route.meta.roles as string[]).includes(role)
+        return (route.meta.roles as string[]).includes(role[0])
       }
     })
   }
@@ -39,19 +40,22 @@ const hasPermission = (roles: string[], route: RouteRecordRaw) => {
  */
 const filterAsyncRoutes = (routes: RouteRecordRaw[], roles: string[]) => {
   const asyncRoutes: RouteRecordRaw[] = []
+  console.log(routes, roles, 88888888)
 
   routes.forEach((route) => {
     const tmpRoute = { ...route } // ES6扩展运算符复制新对象
     console.log(tmpRoute)
     // 判断用户(角色)是否有该路由的访问权限
+    // console.log(hasPermission(roles, tmpRoute), 100000000123) //true
     if (hasPermission(roles, tmpRoute)) {
-      console.log(roles, tmpRoute)
+      // console.log(roles, tmpRoute, 9999)
       console.log(tmpRoute.component)
       if (tmpRoute.component?.toString() == 'Layout') {
         tmpRoute.component = Layout
       } else {
-        const component = modules[`../../views/${tmpRoute.component}.vue`]
         console.log(tmpRoute.component)
+        const component = modules[`../../views/${tmpRoute.component}.vue`]
+        // console.log(tmpRoute.component)
         if (component) {
           tmpRoute.component = component
         } else {
@@ -78,6 +82,7 @@ export const usePermissionStore = defineStore('permission', () => {
   // actions
   function setRoutes(newRoutes: RouteRecordRaw[]) {
     routes.value = constantRoutes.concat(newRoutes)
+    // console.log(routes.value)
   }
   /**
    * 生成动态路由
@@ -91,6 +96,7 @@ export const usePermissionStore = defineStore('permission', () => {
       const asyncRoutes = [
         {
           path: '/system',
+          component: 'Layout',
           redirect: '/system/user',
           meta: {
             title: '系统管理',
@@ -102,6 +108,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'user',
+              component: 'system/user/index',
               name: 'User',
               meta: {
                 title: '用户管理',
@@ -113,6 +120,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'role',
+              component: 'system/role/index',
               name: 'Role',
               meta: {
                 title: '角色管理',
@@ -124,6 +132,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'menu',
+              component: 'system/menu/index',
               name: 'Menu',
               meta: {
                 title: '菜单管理',
@@ -135,6 +144,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'dept',
+              component: 'system/dept/index',
               name: 'Dept',
               meta: {
                 title: '部门管理',
@@ -146,6 +156,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'dict',
+              component: 'system/dict/index',
               name: 'Dict',
               meta: {
                 title: '字典管理',
@@ -159,6 +170,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/api',
+          component: 'Layout',
           meta: {
             title: '接口',
             icon: 'api',
@@ -169,6 +181,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'api-doc',
+              component: 'demo/api-doc',
               name: 'ApiDoc',
               meta: {
                 title: '接口文档',
@@ -182,6 +195,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/doc',
+          component: 'Layout',
           meta: {
             title: '平台文档',
             icon: 'document',
@@ -192,6 +206,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'internal-doc',
+              component: 'demo/internal-doc',
               meta: {
                 title: '平台文档(内嵌)',
                 icon: 'document',
@@ -214,6 +229,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/multi-level',
+          component: 'Layout',
           redirect: '/multi-level/multi-level1',
           meta: {
             title: '多级菜单',
@@ -225,6 +241,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'multi-level1',
+              component: 'demo/multi-level/level1',
               redirect: '/multi-level/multi-level2',
               name: 'MultiLevel1',
               meta: {
@@ -237,6 +254,7 @@ export const usePermissionStore = defineStore('permission', () => {
               children: [
                 {
                   path: 'multi-level2',
+                  component: 'demo/multi-level/children/level2',
                   redirect: '/multi-level/multi-level2/multi-level3-1',
                   name: 'MultiLevel2',
                   meta: {
@@ -249,6 +267,7 @@ export const usePermissionStore = defineStore('permission', () => {
                   children: [
                     {
                       path: 'multi-level3-1',
+                      component: 'demo/multi-level/children/children/level3-1',
                       name: 'MultiLevel31',
                       meta: {
                         title: '菜单三级-1',
@@ -260,6 +279,7 @@ export const usePermissionStore = defineStore('permission', () => {
                     },
                     {
                       path: 'multi-level3-2',
+                      component: 'demo/multi-level/children/children/level3-2',
                       name: 'MultiLevel32',
                       meta: {
                         title: '菜单三级-2',
@@ -277,6 +297,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/table',
+          component: 'Layout',
           meta: {
             title: 'Table',
             icon: 'table',
@@ -287,6 +308,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'dynamic-table',
+              component: 'table/dynamic-table/index',
               name: 'DynamicTable',
               meta: {
                 title: '动态Table',
@@ -298,6 +320,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'drag-table',
+              component: 'table/drag-table',
               name: 'DragTable',
               meta: {
                 title: '拖拽Table',
@@ -309,6 +332,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'complex-table',
+              component: 'table/complex-table',
               name: 'ComplexTable',
               meta: {
                 title: '综合Table',
@@ -322,6 +346,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/component',
+          component: 'Layout',
           meta: {
             title: '组件封装',
             icon: 'menu',
@@ -332,6 +357,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'wang-editor',
+              component: 'demo/wang-editor',
               name: 'WangEditor',
               meta: {
                 title: '富文本编辑器',
@@ -343,6 +369,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'upload',
+              component: 'demo/upload',
               name: 'Upload',
               meta: {
                 title: '图片上传',
@@ -354,6 +381,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'icon-selector',
+              component: 'demo/icon-selector',
               name: 'IconSelector',
               meta: {
                 title: '图标选择器',
@@ -365,6 +393,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'dict-demo',
+              component: 'demo/dict',
               name: 'DictDemo',
               meta: {
                 title: '字典组件',
@@ -376,6 +405,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'signature',
+              component: 'demo/signature',
               name: 'Signature',
               meta: {
                 title: '签名',
@@ -387,6 +417,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'table',
+              component: 'demo/table',
               name: 'Table',
               meta: {
                 title: '表格',
@@ -400,6 +431,7 @@ export const usePermissionStore = defineStore('permission', () => {
         },
         {
           path: '/function',
+          component: 'Layout',
           meta: {
             title: '功能演示',
             icon: 'menu',
@@ -410,6 +442,7 @@ export const usePermissionStore = defineStore('permission', () => {
           children: [
             {
               path: 'permission',
+              component: 'demo/permission/page',
               name: 'Permission',
               meta: {
                 title: 'Permission',
@@ -421,6 +454,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'icon-demo',
+              component: 'demo/icons',
               name: 'IconDemo',
               meta: {
                 title: 'Icons',
@@ -432,6 +466,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'websocket',
+              component: 'demo/websocket',
               name: 'Websocket',
               meta: {
                 title: 'Websocket',
@@ -443,6 +478,7 @@ export const usePermissionStore = defineStore('permission', () => {
             },
             {
               path: 'other',
+              component: 'demo/other',
               meta: {
                 title: '敬请期待...',
                 icon: '',
@@ -454,10 +490,10 @@ export const usePermissionStore = defineStore('permission', () => {
           ]
         }
       ]
-      console.log(111113333111111, roles)
+      // console.log(111113333111111, roles)
 
       const accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-      console.log(accessedRoutes)
+      // console.log(accessedRoutes)
       setRoutes(accessedRoutes)
       resolve(accessedRoutes)
       // listRoutes()

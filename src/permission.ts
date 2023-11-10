@@ -22,22 +22,27 @@ router.beforeEach(async (to, from, next) => {
     } else {
       // 有token，不去登录页，判断权限
       const userStore = useUserStoreHook()
+      // console.log(userStore, 888999)
       const hasRoles = userStore.roles && userStore.roles.length > 0
-      console.log(userStore.roles, 'userStore.roles')
+      console.log(userStore.roles, 'userStore.roles') // ADMIN
       console.log(hasRoles)
       if (hasRoles) {
+        // true
         // 未匹配到任何路由，跳转404
+        console.log(to)
         if (to.matched.length === 0) {
           from.name ? next({ name: from.name }) : next('/404')
         } else {
           next()
         }
       } else {
-        console.log(123123123, hasRoles)
+        // console.log(123123123, hasRoles)
         try {
           const { roles } = await userStore.getInfo()
+          // console.log(roles)
           const accessRoutes = await permissionStore.generateRoutes([roles])
           accessRoutes.forEach((route) => {
+            // console.log(route, 99999999)
             router.addRoute(route)
           })
           next({ ...to, replace: true })

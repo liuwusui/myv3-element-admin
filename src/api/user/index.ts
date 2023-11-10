@@ -82,18 +82,18 @@ export function importUser(deptId: number, file: File) {
 /**
  * 登录成功后获取用户信息（昵称、头像、权限集合和角色集合）
  */
-export function getUserInfo() {
-  return request({
-    url: '/user/me',
-    method: 'get'
-  })
-}
 // export function getUserInfo() {
 //   return request({
 //     url: '/api/v1/users/me',
 //     method: 'get'
 //   })
 // }
+export function getUserInfo() {
+  return request({
+    url: '/api/v1/users/me',
+    method: 'get'
+  })
+}
 
 /**
  * 获取用户分页列表
@@ -135,6 +135,15 @@ export function updateUser(id: number, data: UserForm) {
     data: data
   })
 }
+
+// // 编辑用户
+// export function editUser(userId: number, data: UserForm) {
+//   return request({
+//     url: `api/v1/users/${userId}`,
+//     method: 'put',
+//     data: data
+//   })
+// }
 
 /**
  * 修改用户状态

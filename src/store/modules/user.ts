@@ -21,7 +21,9 @@ export const useUserStore = defineStore('user', () => {
           const { Token } = response.data
           token.value = Token
           // const { tokenType, accessToken } = response.data
+          // console.log(tokenType, accessToken)
           // token.value = tokenType + ' ' + accessToken
+          console.log(token.value)
           resolve()
         })
         .catch((error) => {
@@ -35,7 +37,8 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<UserInfo>((resolve, reject) => {
       getUserInfo()
         .then(({ data }) => {
-          console.log(data, 123123123)
+          data.roles = JSON.parse(data.roles)
+          console.log(data.roles, 123123123)
           if (!data) {
             return reject('Verification failed, please Login again.')
           }

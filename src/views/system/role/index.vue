@@ -1,12 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px">
-      <span style="font-weight: 600">关键字 </span
-      ><el-input
-        placeholder="角色名称"
-        style="width: 20%"
-        class="w-50 m-2"
-      ></el-input>
+      <span style="font-weight: 600">关键字 </span><el-input placeholder="角色名称" style="width: 20%" class="w-50 m-2"></el-input>
       <el-button type="primary" :icon="Search"> 搜索 </el-button>
       <el-button :icon="Refresh"> 重置 </el-button>
     </el-card>
@@ -15,34 +10,17 @@
       <template #header>
         <div class="card-header">
           <div>
-            <el-button
-              :icon="Plus"
-              type="success"
-              @click="dialogFormVisible = true"
-              >新增</el-button
-            >
-            <el-button
-              :icon="Delete"
-              type="danger"
-              :disabled="disabled"
-              @click="deleteRoles"
-              >删除</el-button
-            >
+            <el-button :icon="Plus" type="success" @click="dialogFormVisible = true">新增</el-button>
+            <el-button :icon="Delete" type="danger" :disabled="disabled" @click="deleteRoles">删除</el-button>
           </div>
         </div>
       </template>
-      <el-popconfirm title="Are you sure to delete this?">
+      <!-- <el-popconfirm title="Are you sure to delete this?">
         <template #reference>
           <el-button>Delete</el-button>
         </template>
-      </el-popconfirm>
-      <el-table
-        ref="multipleTableRef"
-        :data="tableData"
-        style="width: 100%"
-        border
-        @selection-change="handleSelectionChange"
-      >
+      </el-popconfirm> -->
+      <el-table ref="multipleTableRef" :data="tableData" style="width: 100%" border @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
         <el-table-column label="角色名称" width="180">
           <template #default="scope">{{ scope.row.name }}</template>
@@ -50,26 +28,17 @@
         <el-table-column property="code" label="角色编码" width="200" />
         <el-table-column property="status" label="状态" width="150">
           <template #default="scope">
-            <el-tag v-if="scope.row.status === 1" class="ml-2" type="success"
-              >正常</el-tag
-            >
-            
+            <el-tag v-if="scope.row.status === 1" class="ml-2" type="success">正常</el-tag>
+
             <el-tag v-else class="ml-2" type="warning">停用</el-tag>
           </template>
         </el-table-column>
         <el-table-column property="sort" label="排序" width="120" />
-        <el-table-column property="name" label="操作" width="120" />
         <el-table-column label="操作">
           <template #default>
-            <el-button link type="primary" :icon="Position" size="small">
-              分配权限</el-button
-            >
-            <el-button link type="primary" :icon="Edit" size="small"
-              >编辑</el-button
-            >
-            <el-button link type="primary" :icon="Delete" size="small"
-              >删除</el-button
-            >
+            <el-button link type="primary" :icon="Position" size="small"> 分配权限</el-button>
+            <el-button link type="primary" :icon="Edit" size="small">编辑</el-button>
+            <el-button link type="primary" :icon="Delete" size="small">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -85,39 +54,15 @@
       />
 
       <!-- 新增 -->
-      <el-dialog
-        v-model="dialogFormVisible"
-        title="新增角色"
-        @close="cancelAdd"
-      >
+      <el-dialog v-model="dialogFormVisible" title="新增角色" @close="cancelAdd">
         <el-form :model="roleForm" ref="roleFormRef" :rules="rules">
-          <el-form-item
-            label="角色名称"
-            prop="name"
-            :label-width="formLabelWidth"
-          >
-            <el-input
-              v-model="roleForm.name"
-              placeholder="请输入角色名称"
-              autocomplete="off"
-            />
+          <el-form-item label="角色名称" prop="name" :label-width="formLabelWidth">
+            <el-input v-model="roleForm.name" placeholder="请输入角色名称" autocomplete="off" />
           </el-form-item>
-          <el-form-item
-            label="角色编码"
-            prop="code"
-            :label-width="formLabelWidth"
-          >
-            <el-input
-              v-model="roleForm.code"
-              placeholder="请输入角色编码"
-              autocomplete="off"
-            />
+          <el-form-item label="角色编码" prop="code" :label-width="formLabelWidth">
+            <el-input v-model="roleForm.code" placeholder="请输入角色编码" autocomplete="off" />
           </el-form-item>
-          <el-form-item
-            label="数据权限"
-            prop="dataScope"
-            :label-width="formLabelWidth"
-          >
+          <el-form-item label="数据权限" prop="dataScope" :label-width="formLabelWidth">
             <el-select v-model="roleForm.dataScope" placeholder="请选择">
               <el-option label="全部数据" :value="0" />
               <el-option label="部门及子部门数据" :value="1" />
@@ -125,24 +70,14 @@
               <el-option label="本人数据" :value="3" />
             </el-select>
           </el-form-item>
-          <el-form-item
-            label="状态"
-            prop="status"
-            :label-width="formLabelWidth"
-          >
+          <el-form-item label="状态" prop="status" :label-width="formLabelWidth">
             <el-radio-group v-model="roleForm.status" class="ml-4">
               <el-radio :label="1" size="large">正常</el-radio>
               <el-radio :label="2" size="large">停用</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="排序" prop="sort" :label-width="formLabelWidth">
-            <el-input-number
-              v-model="roleForm.sort"
-              :min="1"
-              :max="10"
-              controls-position="right"
-              @change="handleChange"
-            />
+            <el-input-number v-model="roleForm.sort" :min="1" :max="10" controls-position="right" @change="handleChange" />
           </el-form-item>
         </el-form>
         <template #footer>
@@ -157,20 +92,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  listRoleOptions,
-  getRoleData,
-  addRoles,
-  delRoles
-} from '@/api/role/index'
-import {
-  Search,
-  Refresh,
-  Plus,
-  Delete,
-  Position,
-  Edit
-} from '@element-plus/icons-vue'
+import { listRoleOptions, getRoleData, addRoles, delRoles } from '@/api/role/index'
+import { Search, Refresh, Plus, Delete, Position, Edit } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElTable } from 'element-plus'
 

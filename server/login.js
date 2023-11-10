@@ -3,6 +3,8 @@ const app = express() //创建一个express实例
 const moment = require('moment')
 // 导入 bcryptjs 加密包
 const bcrypt = require('bcryptjs')
+// 定义加密密码计算强度
+const saltRounds = 10
 const jwt = require('jsonwebtoken')
 //post参数解析需要的模块以及转码工具
 const bodyParser = require('body-parser')
@@ -114,7 +116,7 @@ app.get('/user/register', function (req, res) {
   })
 })
 
-app.post('/user/login', function (req, res) {
+app.post('/api/v1/auth/login', function (req, res) {
   // const userInfo = req.body
   // // 定义 SQL 语句
   // const sql = 'select * from ev_users where username= ? '
@@ -206,7 +208,7 @@ app.post('/login', (req, res) => {
 })
 
 // 获取用户信息
-app.get('/user/me', (req, res) => {
+app.get('/api/v1/users/me', (req, res) => {
   // const sqlStr = `select * from ev_users where username = "${req.body.username}"  and password = "${req.body.password}"`
   // const sqlStr = `select id, username, nickname, email, user_pic from ev_users where id=?`
   // const sqlStr =
@@ -214,7 +216,6 @@ app.get('/user/me', (req, res) => {
   const sqlStr = `select * from ev_users where username ='admin'`
   // console.log(req, 909090)
   connection.query(sqlStr, req.user, (error, results) => {
-    // console.log(results, 123123)
     if (error)
       return res.json({
         code: 10001,
@@ -223,7 +224,10 @@ app.get('/user/me', (req, res) => {
     // res.json({ code: '00000', data: results[0] })
     res.send({
       code: '00000',
-      data: results[0],
+      data: {
+        ...results[0],
+        roles: JSON.parse(JSON.stringify(results[0].roles))
+      },
       msg: '获取用户信息成功！'
     })
   })
@@ -247,7 +251,7 @@ app.get('/user/me', (req, res) => {
 
 app.get('/api/getUserList', (req, res) => {
   const sqlStr =
-    'select sys_user.id,sys_user.username,sys_user.nickname,sys_user.mobile,sys_user.avatar,sys_user.email,sys_user.`status`,sys_user.create_time as createTime,sys_dict.`name` as genderLabel,sys_dept.`name` as deptName from sys_user, sys_dict,sys_dept where sys_user.gender=sys_dict.`value` and sys_user.dept_id=sys_dept.id'
+    'select sys_user.id,sys_user.username,sys_user.nickname,sys_user.mobile,sys_user.avatar,sys_user.email,sys_user.`status`,sys_user.create_time as createTime,sys_dict.`name` as genderLabel,sys_dept.`name` as deptName from sys_user, sys_dict,sys_dept where sys_user.gender=sys_dict.`value` and sys_user.dept_id=sys_dept.id ORDER BY sys_user.id'
 
   connection.query(sqlStr, (error, results) => {
     //pagesize一页展示多条数据  pagesize前端传来的可选参数，如果没传给个默认值5。传来的是字符串需要parseInt()函数转化
@@ -319,7 +323,7 @@ app.get('/api/v1/dept/options', (req, res) => {
   })
 })
 app.post('/api/v1/users', (req, res) => {
-  console.log(123123)
+  console.log(req.body)
   const username = req.body.username
   const nickname = req.body.nickname
   const deptId = req.body.deptId
@@ -327,10 +331,14 @@ app.post('/api/v1/users', (req, res) => {
   const status = req.body.status
   const mobile = req.body.mobile || ''
   const email = req.body.email || ''
-
-  const sqlStr = `insert INTO sys_user(username,nickname,gender,mobile,status,email,dept_id,password,create_time)  values ('${username}','${nickname}','${gender}','${mobile}','${status}','${email}','${deptId}','123456','${moment().format(
-    'YYYY-MM-DD HH:mm:ss'
-  )}')`
+  const roleIds = JSON.stringify(req.body.roleIds)
+  const defaultPassword = '123456'
+  // bcrypt.hash(defaultPassword, saltRounds, function (err, hash) {
+  // 数据库存入hash
+  const sqlStr = `insert INTO sys_user(username,nickname,gender,mobile,status,email,dept_id,password,create_time)  
+    values ('${username}','${nickname}','${gender}','${mobile}','${status}','${email}','${deptId}','${defaultPassword}',
+    '${moment().format('YYYY-MM-DD HH:mm:ss')}');
+    insert INTO sys_user_role(user_id,role_id)  values (LAST_INSERT_ID(),'${roleIds}')`
   connection.query(sqlStr, (error, results) => {
     if (error)
       return res.json({
@@ -343,9 +351,10 @@ app.post('/api/v1/users', (req, res) => {
       message: '新增用户成功！'
     })
   })
+  // })
 })
 app.delete('/api/v1/del/users', (req, res) => {
-  console.log(req.query.ids, 66666)
+  // console.log(req.query.ids, 66666)
   const sqlStr = `DELETE FROM sys_user where sys_user.id=${req.query.ids}`
   /*   SET @auto_id = 0;
 UPDATE sys_user SET id = (@auto_id := @auto_id + 1);
@@ -367,7 +376,7 @@ ALTER TABLE sys_user AUTO_INCREMENT = 0; */
 // 编辑 用户信息回显
 app.get(`/api/v1/users/:id/form`, (req, res) => {
   const userId = req.params.id // 获取请求URL中的用户ID
-  const sqlStr = `select *  FROM sys_user where sys_user.id=${userId}`
+  const sqlStr = `SELECT * FROM sys_user JOIN sys_user_role ON sys_user.id = sys_user_role.user_id WHERE sys_user.id =${userId}`
   connection.query(sqlStr, (error, results) => {
     if (error)
       return res.json({
@@ -377,12 +386,48 @@ app.get(`/api/v1/users/:id/form`, (req, res) => {
     delete results[0].password
     delete results[0].deleted
     delete results[0].update_time
+    results[0].deptId = results[0].dept_id
+    delete results[0].dept_id
+    delete results[0].create_time
+    delete results[0].user_id
+    results[0].roleIds = JSON.parse(results[0].role_id)
+    delete results[0].role_id
+    // console.log(results[0])
     res.json({
       code: '00000',
       data: results[0],
       message: '获取用户信息成功！'
     })
   })
+})
+// 修改用户信息
+app.put(`api/v1/users/:userId`, (req, res) => {
+  console.log(req.body)
+  // const userId = req.params.id // 获取请求URL中的用户ID
+  // const username = req.body.username
+  // const nickname = req.body.nickname
+  // const deptId = req.body.deptId
+  // const gender = req.body.gender || 0
+  // const status = req.body.status
+  // const mobile = req.body.mobile || ''
+  // const email = req.body.email || ''
+  // const roleIds = JSON.stringify(req.body.roleIds)
+  // console.log(req.params.id)
+  // console.log(req.body, 9999)
+  // const sqlStr = `update sys_user set username=${username},nickname=${nickname},dept_id=${deptId},gender=${gender},mobile=${mobile},status=${status},email=${email} where id=${userId};`
+  // connection.query(sqlStr, (error, results) => {
+  //   if (error)
+  //     return res.json({
+  //       code: 10001,
+  //       data: error
+  //     })
+  //   console.log(results[0])
+  //   res.json({
+  //     code: '00000',
+  //     data: results[0],
+  //     message: '修改用户信息成功！'
+  //   })
+  // })
 })
 
 function buildTree(data) {

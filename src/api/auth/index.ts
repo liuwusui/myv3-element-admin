@@ -9,22 +9,22 @@ import { LoginData, LoginResult } from './types'
  * @param data {LoginData}
  * @returns
  */
+export function loginApi(data: LoginData): AxiosPromise<LoginResult> {
+  return request({
+    url: '/api/v1/auth/login',
+    method: 'post',
+    params: data
+  })
+}
+
+// // 自己写的登录
 // export function loginApi(data: LoginData): AxiosPromise<LoginResult> {
 //   return request({
 //     url: '/api/v1/auth/login',
 //     method: 'post',
 //     params: data
-//   });
+//   })
 // }
-
-// 自己写的登录
-export function loginApi(data: LoginData): AxiosPromise<LoginResult> {
-  return request({
-    url: '/user/login',
-    method: 'post',
-    params: data
-  })
-}
 export function logoutApi() {
   return request({
     url: '/api/v1/auth/logout',

@@ -21,24 +21,24 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/login/index.vue'),
     meta: { hidden: true }
   },
-  {
-    path: '/system',
-    component: Layout,
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/system/user/index.vue'),
-        // name: 'User',
-        meta: {
-          hidden: false,
-          title: '用户管理',
-          path: 'user',
-          icon: 'user',
-          affix: true
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/system',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'user',
+  //       component: () => import('@/views/system/user/index.vue'),
+  //       // name: 'User',
+  //       meta: {
+  //         hidden: false,
+  //         title: '用户管理',
+  //         path: 'user',
+  //         icon: 'user',
+  //         affix: true
+  //       }
+  //     }
+  //   ]
+  // },
 
   {
     path: '/',

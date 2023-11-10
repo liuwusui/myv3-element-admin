@@ -4,6 +4,7 @@ import {
   getUsers,
   addUser,
   userById,
+  updateUser,
   deleteUser,
   downTemp,
   getUserList,
@@ -23,8 +24,7 @@ import {
 } from '@element-plus/icons-vue'
 import { onMounted } from 'vue'
 import { reactive, ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import { prependOnceListener } from 'process'
+import dayjs from 'dayjs'
 
 const handleClick = () => {
   console.log('click')
@@ -46,6 +46,8 @@ const filterNode = (value: string, data: any) => {
   return data.name.includes(value)
 }
 
+const title = ref('新增用户')
+
 function handleNodeClick(data) {
   console.log(data.id)
   queryParams.deptId = data.id
@@ -60,6 +62,7 @@ const pageInfo = reactive({
   pagenum: 1,
   pagesize: 10
 })
+const editId = ref()
 
 const total = ref()
 const rolesArr = ref()
@@ -84,13 +87,15 @@ async function openDialog(id: number) {
   centerDialogVisible.value = true
   await getRoleOptions()
   await getDeptOptions()
+  editId.value = id
   if (id) {
-    console.log(id)
+    title.value = '编辑用户'
     userById(id).then((res) => {
       console.log(res)
       Object.assign(formData, res.data)
     })
   } else {
+    title.value = '新增用户'
   }
 }
 function getDeptlist() {
@@ -205,17 +210,32 @@ function submitForm() {
   console.log(JSON.parse(JSON.stringify(formData)), 181881818)
 
   userFormRef.value.validate((valid: any) => {
+    console.log(editId.value)
     if (valid) {
-      addUser(JSON.parse(JSON.stringify(formData))).then((res) => {
-        console.log(res)
-        if ((res.code = '00000')) {
-          ElMessage.success(res.message)
-          centerDialogVisible.value = false
-        }
-        onSearch()
-      })
+      if (!editId.value) {
+        addUser(JSON.parse(JSON.stringify(formData))).then((res) => {
+          console.log(res)
+          if ((res.code = '00000')) {
+            ElMessage.success(res.message)
+          }
+          onSearch()
+        })
+      } else {
+        console.log(123123)
+        updateUser(editId.value, JSON.parse(JSON.stringify(formData))).then(
+          (res) => {
+            console.log(res)
+            // if ((res.code = '00000')) {
+            //   ElMessage.success(res.message)
+            //   centerDialogVisible.value = false
+            // }
+            onSearch()
+          }
+        )
+      }
     } else {
       console.log(444555666)
+      centerDialogVisible.value = false
     }
   })
 }
@@ -250,8 +270,8 @@ onMounted(() => {
 </script>
 <template>
   <div class="main">
-    <el-row :gutter="30">
-      <el-col :xs="24" :lg="4" class="mb-[12px]">
+    <el-row :gutter="10">
+      <el-col :xs="24" :lg="3" class="mb-[12px]">
         <el-card class="box-card">
           <div class="card-header">
             <el-input
@@ -273,7 +293,7 @@ onMounted(() => {
           />
         </el-card>
       </el-col>
-      <el-col :xs="24" :lg="20">
+      <el-col :xs="24" :lg="21">
         <el-card style="margin-bottom: 10px">
           <el-form
             ref="ruleFormRef"
@@ -346,23 +366,35 @@ onMounted(() => {
           <div>
             <el-table :data="tableData" style="width: 100%">
               <el-table-column type="selection" width="55" />
-              <el-table-column prop="id" label="编号" width="150" />
+              <el-table-column prop="id" label="编号" width="80" />
               <el-table-column prop="username" label="用户名" width="120" />
               <el-table-column prop="nickname" label="用户昵称" width="120" />
               <el-table-column prop="genderLabel" label="性别" width="120" />
-              <el-table-column prop="deptName" label="部门" width="200" />
+              <el-table-column prop="deptName" label="部门" width="100" />
               <el-table-column prop="mobile" label="手机号码" width="120" />
               <el-table-column prop="status" label="状态" width="120">
                 <template #default="scope">
                   <el-switch
                     v-model="scope.row.status"
-                    active-value="1"
-                    inactive-value="0"
+                    :active-value="1"
+                    :inactive-value="0"
                     class="ml-2"
                   />
                 </template>
               </el-table-column>
-              <el-table-column prop="createTime" label="创建时间" width="120" />
+              <el-table-column prop="createTime" label="创建时间" width="160">
+                <template #default="scope">
+                  <!-- dayjs().subtract(2, 'hour').format('YYYY-MM-DD HH:mm:ss');   // 2022-04-20 14:03:39 今天现在（2022-04-20 16:03:39）减去2小时 -->
+
+                  {{
+                    scope.row.createTime
+                      ? dayjs(scope.row.createTime).format(
+                          'YYYY-MM-DD HH:mm:ss'
+                        )
+                      : scope.row.createTime
+                  }}
+                </template>
+              </el-table-column>
               <el-table-column fixed="right" label="操作" width="200">
                 <template #default="scope">
                   <el-button
@@ -417,7 +449,7 @@ onMounted(() => {
         </el-card>
         <el-dialog
           v-model="centerDialogVisible"
-          title="新增用户"
+          :title="title"
           width="50%"
           align-center
         >
@@ -455,8 +487,9 @@ onMounted(() => {
 
             <el-form-item label="性别" prop="gender">
               <el-select v-model="formData.gender" placeholder="请输入性别">
-                <el-option label="男" value="1" />
-                <el-option label="女" value="2" />
+                <el-option label="未知" :value="0" />
+                <el-option label="男" :value="1" />
+                <el-option label="女" :value="2" />
               </el-select>
             </el-form-item>
             <el-form-item label="角色" prop="roleIds">
